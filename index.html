@@ -595,16 +595,22 @@
         const tabs = ['origin', 'synthesis', 'agri', 'med', 'data'];
         let chartsRendered = false;
 
-        function switchTab(selectedTab) {
+                function switchTab(selectedTab) {
+            // 1. Hide all tabs and remove active styling
             tabs.forEach(tab => {
                 document.getElementById(tab).style.display = 'none';
                 document.getElementById('tab-' + tab).classList.remove('active');
             });
             
+            // 2. SCROLL TO TOP LOGIC: Instantly snap back to the top of the page
+            window.scrollTo(0, 0);
+            
+            // 3. Show the new tab and apply active styling
             const activeSection = document.getElementById(selectedTab);
             activeSection.style.display = 'block';
             activeSection.style.opacity = '0';
             
+            // 4. Fade-in animation
             let op = 0;
             const timer = setInterval(() => {
                 if (op >= 1){ clearInterval(timer); }
@@ -614,11 +620,12 @@
 
             document.getElementById('tab-' + selectedTab).classList.add('active');
 
+            // 5. Render charts if the synthesis tab is opened for the first time
             if (selectedTab === 'synthesis' && !chartsRendered) {
                 renderCharts();
                 chartsRendered = true;
             }
-        }
+                }
 
         // Initialize display
         tabs.forEach(t => document.getElementById(t).style.display = 'none');
