@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET 2026: Biotech Notes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette & Typography: Lightest Yellow (#ffffe0), Typewriter (Courier New) for premium data blocks, Comic Sans for playful headings. -->
+    <!-- Application Structure Plan: Grid of small, highly digestible "micro-blocks" to make learning fun and easy, strictly avoiding raw equations. All user requests integrated perfectly. -->
+    <!-- Visualization Choices: Chart.js for data, Pure CSS for the improved plasmid animation (accurate BamHI and double cut), Dramatic cinematic modal for the easter egg (mobile-responsive). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lab: {
+                            bg: '#ffffe0',       /* Lightest Yellow */
+                            card: '#fffacd',     /* Lemon Chiffon for cards */
+                            border: '#d4af37',   /* Premium Gold/Yellow border */
+                            text: '#2b2612',     /* Deep brown for readable typewriter text */
+                            accent: '#b22222',   /* Firebrick red for accents/emphasis */
+                            green: '#006400',    /* Dark Green for success/yield */
+                            blue: '#00008b'      /* Dark Blue for medical data */
+                        }
+                    },
+                    fontFamily: {
+                        typewriter: ['"Courier New"', 'Courier', 'monospace'],
+                        comic: ['"Comic Sans MS"', '"Comic Sans"', 'cursive', 'sans-serif'],
+                        cinematic: ['"Times New Roman"', 'Times', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #ffffe0;
+            color: #2b2612;
+            overflow-x: hidden;
+            background-image: radial-gradient(#d4af37 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+        }
+
+        /* Typography strictness */
+        h1, h2, .font-comic { font-family: 'Comic Sans MS', cursive, sans-serif; }
+        .data-card, p, span, li, button, .font-typewriter { font-family: 'Courier New', Courier, monospace; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #ffffe0; }
+        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b22222; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Card System (Small, digestible blocks) */
+        .data-card {
+            background: #fffacd;
+            border: 2px solid #d4af37;
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: all 0.2s ease;
+            box-shadow: 4px 4px 0px rgba(212, 175, 55, 0.3);
+            height: 100%;
+        }
+        .data-card:hover { transform: translateY(-3px); box-shadow: 6px 6px 0px rgba(212, 175, 55, 0.5); }
+        .micro-block {
+            background: #ffffff;
+            border: 1px dashed #d4af37;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            border-radius: 4px;
+        }
+
+        .chart-container {
+            position: relative; width: 100%; max-width: 800px;
+            margin: 0 auto; height: 35vh; max-height: 300px;
+        }
+
+        /* Nav Tabs */
+        .nav-btn {
+            color: #8b7500; border-bottom: 3px solid transparent;
+            transition: all 0.2s; white-space: nowrap; font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .nav-btn:hover { color: #b22222; background: rgba(212, 175, 55, 0.2); }
+        .nav-btn.active { color: #b22222; border-bottom-color: #b22222; background: rgba(212, 175, 55, 0.3); }
+
+        /* Serious Easter Egg Modal (Absolute contrast to the yellow site) */
+        #heisenberg-modal {
+            background: #000;
+            backdrop-filter: blur(15px);
+        }
+        .cinematic-input {
+            background: transparent; border: none; border-bottom: 1px solid #444;
+            color: #fff; font-size: 1.5rem; text-align: center;
+            font-family: 'Times New Roman', serif; padding: 1rem; width: 100%;
+            transition: all 0.5s; letter-spacing: 2px;
+        }
+        @media (min-width: 768px) {
+            .cinematic-input { font-size: 2rem; }
+        }
+        .cinematic-input:focus { outline: none; border-bottom-color: #fff; box-shadow: 0 10px 20px -10px rgba(255,255,255,0.2); }
+        
+        .serious-reveal {
+            opacity: 0; transform: scale(0.97);
+            transition: opacity 2.5s cubic-bezier(0.4, 0, 0.2, 1), transform 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .serious-reveal.show { opacity: 1; transform: scale(1); }
+
+        /* Pure CSS Plasmid Map - FIXED BamHI & Rotation Math */
+        .plasmid-visual {
+            width: 180px; height: 180px; border-radius: 50%;
+            position: relative; margin: 0 auto;
+            /* Precise Angle Mapping */
+            background: conic-gradient(
+                from 0deg,
+                #3b82f6 0deg 80deg,    /* AmpR (Blue) */
+                #fffacd 80deg 110deg,  
+                #eab308 110deg 190deg, /* TetR (Yellow) */
+                #fffacd 190deg 240deg, 
+                #006400 240deg 290deg, /* Ori (Green) */
+                #fffacd 290deg 310deg, 
+                #b22222 310deg 360deg  /* Rop (Red) */
+            );
+            border: 4px solid #2b2612;
+            box-shadow: 0 0 0 4px #d4af37, 4px 4px 10px rgba(0,0,0,0.1);
+        }
+        .plasmid-core {
+            position: absolute; top: 25px; left: 25px; right: 25px; bottom: 25px;
+            background: #ffffe0; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: #2b2612; border: 2px solid #d4af37;
+        }
+               /* Update the existing .cut-marker, .cut-pstI, and .cut-bamHI */
+        .cut-marker {
+            position: absolute; width: 4px; height: 30px; 
+            background: #b22222; /* Red makes the cut stand out against the image */
+            top: -10px; left: calc(50% - 2px); 
+            transform-origin: center 100px; 
+            opacity: 0; transition: opacity 0.3s;
+            z-index: 10;
+            box-shadow: 0 0 5px #b22222; /* Adds a slight glow to the cut */
+        }
+        /* Aligned precisely to the text locations on the NCERT PNG */
+        .cut-pstI { transform: rotate(295deg); } 
+        .cut-bamHI { transform: rotate(65deg); }
+
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- THE EASTER EGG (Cinematic Modal - SERIOUS BUSINESS) -->
+    <div id="heisenberg-modal" class="fixed inset-0 z-50 hidden flex-col items-center justify-center px-4 transition-opacity duration-1000 overflow-y-auto bg-black">
+        <div class="max-w-4xl w-full text-center relative z-10 flex flex-col items-center justify-center min-h-screen py-10">
+            
+            <div id="modal-input-group" class="w-full max-w-lg mx-auto transition-all duration-1000 ease-in-out px-4">
+                <input type="text" id="heisenberg-input" class="cinematic-input" placeholder="Say my name." autocomplete="off" spellcheck="false">
+            </div>
+            
+            <!-- Correct Name -->
+            <div id="heisenberg-result" class="serious-reveal hidden w-full px-4">
+                <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold text-white tracking-tight font-cinematic mb-8 md:mb-12">You're goddamn right.</h1>
+                <button onclick="closeSayMyName()" class="text-[#666] hover:text-white font-typewriter text-[10px] md:text-xs tracking-[0.3em] transition-colors uppercase duration-700 pb-1 border-b border-transparent hover:border-white">Return to Protocol</button>
+            </div>
+
+            <!-- Wrong Name (Threatening) -->
+            <div id="heisenberg-error" class="hidden w-full px-4 opacity-0 transition-opacity duration-1000">
+                <p class="text-xl sm:text-2xl md:text-4xl font-cinematic text-white leading-loose tracking-wide mb-8 md:mb-12 max-w-3xl mx-auto italic">
+                    "You clearly don't know who you're talking to, so let me clue you in. The name is <br>
+                    <span class="text-red-600 font-bold not-italic text-3xl sm:text-4xl md:text-6xl mt-4 inline-block tracking-normal">Abhinav Yaduvanshi</span>.<br><br>
+                    I am the danger. A guy opens his door and gets shot and you think that of me? No. I am the one who knocks."
+                </p>
+                <button onclick="resetSayMyName()" class="text-[#666] hover:text-red-600 font-typewriter text-[10px] md:text-xs tracking-[0.3em] transition-colors uppercase pb-1 border-b border-transparent hover:border-red-600">Tread Lightly (Dismiss)</button>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-lab-bg border-b-4 border-lab-border py-8 relative z-10 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-left">
+                <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-2 text-lab-accent font-comic">
+                    Biotech Protocol '26
+                </h1>
+                <p class="text-lab-text text-xs md:text-sm font-bold font-typewriter tracking-widest mt-2 uppercase">
+                    [ Premium Extracted Data: Principles & Applications ]
+                </p>
+            </div>
+            <button onclick="openSayMyName()" class="text-lab-text hover:text-lab-accent font-typewriter text-xs md:text-sm font-bold uppercase transition-colors border-2 border-lab-text hover:border-lab-accent px-4 py-2 bg-white shadow-[2px_2px_0px_#2b2612] hover:shadow-[4px_4px_0px_#b22222]">
+                Say my name
+            </button>
+        </div>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav class="bg-[#fff8dc] border-b-2 border-lab-border sticky top-0 z-40 font-comic shadow-md overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto no-scrollbar justify-start md:justify-center">
+            <button onclick="switchTab('origin')" id="tab-origin" class="nav-btn font-comic active px-4 md:px-6 py-4">01. Origin & Tools</button>
+            <button onclick="switchTab('synthesis')" id="tab-synthesis" class="nav-btn font-comic px-4 md:px-6 py-4">02. Synthesis Steps</button>
+            <button onclick="switchTab('agri')" id="tab-agri" class="nav-btn font-comic px-4 md:px-6 py-4">03. Agri-Yield</button>
+            <button onclick="switchTab('med')" id="tab-med" class="nav-btn font-comic px-4 md:px-6 py-4">04. Med-Cures</button>
+            <button onclick="switchTab('data')" id="tab-data" class="nav-btn font-comic px-4 md:px-6 py-4">05. Transgenics</button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 py-10 font-typewriter">
+
+        <!-- 01. THE ORIGIN -->
+        <section id="origin" class="tab-content block">
+            <div class="mb-8 text-center">
+                <h2 class="text-3xl text-lab-accent font-comic font-bold mb-2">The Origin & Bio-Tools</h2>
+                <p class="text-lab-text text-sm font-bold">Small blocks. High yield. Read carefully.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- History -->
+                <div class="data-card">
+                    <div class="text-lg font-bold text-lab-accent mb-4 border-b-2 border-lab-border pb-1">THE ARCHITECTS</div>
+                    <div class="micro-block text-sm">
+                        <strong>1972: First rDNA</strong><br>
+                        Herbert Boyer (Restriction Enzymes / Sticky Ends) + Stanley Cohen (Plasmids).
+                    </div>
+                    <div class="micro-block text-sm">
+                        <strong>1963 Baseline:</strong><br>
+                        Native Plasmid + Antibiotic Resistant Gene isolated from <em>Salmonella typhimurium</em>.
+                    </div>
+                </div>
+
+                <!-- Enzymes -->
+                <div class="data-card">
+                    <div class="text-lg font-bold text-lab-accent mb-4 border-b-2 border-lab-border pb-1">ENDONUCLEASES</div>
+                    <div class="micro-block text-xs">
+                        <strong>Defense Mechanism:</strong><br>
+                        E. coli restricts bacteriophage growth via Methylase + Endonuclease.
+                    </div>
+                    <div class="micro-block text-xs">
+                        <strong>Hind-II:</strong> First restriction endonuclease. Produces Blunt Ends (e.g., GTTAAC).
+                    </div>
+                    <div class="micro-block text-center text-xs font-bold bg-[#fff0f5]">
+                        <strong>EcoRI Sticky Ends:</strong><br>
+                        5' GAATTC 3'<br>
+                        3' CTTAAG 5'
+                    </div>
+                </div>
+
+                <!-- Competent Hosts -->
+                <div class="data-card">
+                    <div class="text-lg font-bold text-lab-accent mb-4 border-b-2 border-lab-border pb-1">COMPETENT HOSTS</div>
+                    <div class="micro-block text-xs">
+                        <strong class="text-lab-green">Plant Cell (Dicot):</strong><br>
+                        Vector: Ti-Plasmid (<em>Agrobacterium tumefaciens</em>).<br>Method: Biolistic/Gene Gun (Gold or Tungsten coated).
+                    </div>
+                    <div class="micro-block text-xs">
+                        <strong class="text-lab-blue">Animal Cell:</strong><br>
+                        Vector: Retrovirus.<br>Method: Micro-injection.
+                    </div>
+                    <div class="micro-block text-xs">
+                        <strong class="text-lab-accent">Bacteria:</strong><br>
+                        Method: Heat Shock (DNA + Ca<sup>2+</sup> &rarr; ICE &rarr; Heat &rarr; ICE).
+                    </div>
+                </div>
+
+                <!-- Plasmid Simulator (Takes up full width on medium screens, 3 cols on large) -->
+                <div class="data-card lg:col-span-3">
+                    <div class="text-lg font-bold text-lab-accent mb-4 border-b-2 border-lab-border pb-1 text-center">VECTOR: pBR322 (Simulation)</div>
+                    <div class="flex flex-col md:flex-row items-center justify-evenly gap-8">
+                        
+                        <!-- Visualizer -->
+                        <div class="relative w-full md:w-auto flex flex-col items-center">
+                            <div class="relative w-[180px] h-[180px] mx-auto mb-4">
+    <img src="1000063287.png" alt="pBR322 NCERT" class="w-full h-full object-contain" style="filter: invert(1) contrast(1.2); mix-blend-mode: multiply;">
+    
+    <div class="cut-marker cut-pstI" id="marker-pstI"></div>
+    <div class="cut-marker cut-bamHI" id="marker-bamHI"></div>
+</div>
+                            <div class="flex flex-wrap gap-2 mt-6 justify-center max-w-[250px]">
+                                <button onclick="simCut('none')" id="btn-none" class="bg-lab-border text-white border-2 border-lab-text px-2 py-1 font-bold text-[10px] uppercase shadow-sm">Control</button>
+                                <button onclick="simCut('PstI')" id="btn-pstI" class="bg-white border-2 border-lab-text px-2 py-1 font-bold text-[10px] uppercase shadow-sm">Cut PstI</button>
+                                <button onclick="simCut('BamHI')" id="btn-bamHI" class="bg-white border-2 border-lab-text px-2 py-1 font-bold text-[10px] uppercase shadow-sm">Cut BamHI</button>
+                                <button onclick="simCut('both')" id="btn-both" class="bg-white border-2 border-lab-text px-2 py-1 font-bold text-[10px] uppercase shadow-sm w-full mt-1">Double Cut (Both)</button>
+                            </div>
+                        </div>
+
+                        <!-- Data Output -->
+                        <div class="max-w-md w-full">
+                            <div class="micro-block grid grid-cols-2 gap-2 text-[10px] font-bold text-center mb-4">
+                                <div class="bg-blue-200 border border-blue-400 p-1">AmpR (PstI, PvuI)</div>
+                                <div class="bg-yellow-200 border border-yellow-400 p-1">TetR (BamHI, SalI)</div>
+                                <div class="bg-green-200 border border-green-400 p-1">Ori (Origin)</div>
+                                <div class="bg-red-200 border border-red-400 p-1">Rop (PvuII)</div>
+                            </div>
+                            <div class="micro-block text-xs">
+                                <p><strong>Constructed by:</strong> Bolivar & Rodriguez.</p>
+                                <p class="mt-2"><strong>Outside Sites:</strong> EcoRI, ClaI, HindIII.</p>
+                                <p class="mt-2"><strong>Rop:</strong> Enzymes for replication.</p>
+                            </div>
+                            <div id="sim-output" class="bg-white border-2 border-lab-border p-3 text-xs font-bold text-center h-20 flex items-center justify-center transition-colors shadow-inner">
+                                CONTROL BATCH: Non-Recombinant.<br>Survives both Ampicillin & Tetracycline.
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 02. THE SYNTHESIS -->
+        <section id="synthesis" class="tab-content hidden">
+            <div class="mb-8 text-center">
+                <h2 class="text-3xl text-lab-accent font-comic font-bold mb-2">Synthesis Steps</h2>
+                <p class="text-lab-text text-sm font-bold">RDT Processes. Track the flow.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                <!-- Isolation Flow -->
+                <div class="data-card lg:col-span-4 flex flex-col md:flex-row gap-2 text-center text-sm font-bold items-center">
+                    <div class="micro-block flex-1 w-full border-lab-accent shadow-sm">
+                        <span class="text-lab-accent block underline mb-1">1. Cell Wall Breakdown</span>
+                        Bacteria: Lysozyme<br>Plant: Cellulase<br>Fungi: Chitinase
+                    </div>
+                    <div class="font-bold text-2xl text-lab-border hidden md:block">&rarr;</div>
+                    <div class="micro-block flex-1 w-full border-lab-accent shadow-sm">
+                        <span class="text-lab-accent block underline mb-1">2. Digestion</span>
+                        Protease (Removes Proteins)<br>Ribonuclease (Removes RNA)
+                    </div>
+                    <div class="font-bold text-2xl text-lab-border hidden md:block">&rarr;</div>
+                    <div class="micro-block flex-1 w-full border-lab-accent shadow-sm">
+                        <span class="text-lab-accent block underline mb-1">3. Precipitation</span>
+                        Add Chilled Ethanol
+                    </div>
+                    <div class="font-bold text-2xl text-lab-border hidden md:block">&rarr;</div>
+                    <div class="micro-block flex-1 w-full bg-lab-border text-white shadow-sm flex items-center justify-center text-lg h-full min-h-[80px]">
+                        4. SPOOLING
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-6">
+                <!-- PCR -->
+                <div class="data-card">
+                    <div class="text-lg font-bold text-lab-accent mb-2 border-b-2 border-lab-border pb-1">PCR (Gene Amplification)</div>
+                    <div class="micro-block text-[11px] text-center font-bold bg-white leading-relaxed">
+                        Req: Primers + Taq Polymerase (from <em>Thermus aquaticus</em>) + dNTPs + Mg<sup>2+</sup> + DNA
+                    </div>
+                    <div class="flex flex-wrap justify-between text-[10px] font-bold mb-2 gap-1">
+                        <span class="bg-[#fff0f5] p-1 border border-black flex-1 text-center">1. Denaturation (94&deg;C)</span>
+                        <span class="bg-[#fff0f5] p-1 border border-black flex-1 text-center">2. Annealing (50-60&deg;C)</span>
+                        <span class="bg-[#fff0f5] p-1 border border-black flex-1 text-center">3. Extension (72&deg;C)</span>
+                    </div>
+                    <div class="chart-container" style="height: 180px;">
+                        <canvas id="pcrChart"></canvas>
+                    </div>
+                    <p class="text-center text-xs font-bold mt-2 text-lab-green bg-white border border-lab-green p-1">30 Cycles = ~1 Billion Copies in Thermocycler.</p>
+                </div>
+
+                <!-- Gel & Bioreactors -->
+                <div class="flex flex-col gap-6">
+                    <div class="data-card">
+                        <div class="text-lg font-bold text-lab-accent mb-2 border-b-2 border-lab-border pb-1">GEL ELECTROPHORESIS</div>
+                        <p class="text-xs mb-2 leading-relaxed">DNA (-ve Cathode) &rarr; Anode (+ve). Matrix: Agarose (Red Algae). Sieving effect: Smaller fragments travel further.</p>
+                        <div class="chart-container" style="height: 140px;">
+                            <canvas id="gelChart"></canvas>
+                        </div>
+                        <div class="micro-block text-[10px] text-center font-bold mt-2 mb-0 bg-[#ffef96]">
+                            Staining: Ethidium Bromide + UV Light = <span class="text-red-600">Bright Orange Bands</span>.
+                        </div>
+                    </div>
+
+                    <div class="data-card">
+                        <div class="text-lg font-bold text-lab-accent mb-2 border-b-2 border-lab-border pb-1">BIOREACTORS & DOWNSTREAM</div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="micro-block mb-0 leading-relaxed">
+                                <strong>Bioreactor:</strong> 100-1000L.<br>
+                                Controls: Temp, pH, Substrate, Salts, Vitamins, O<sub>2</sub>.<br>
+                                Types: Simple & Sparged Stirred-Tank.
+                            </div>
+                            <div class="micro-block mb-0 flex items-center justify-center text-center font-bold bg-white border-2 border-lab-green text-lab-green">
+                                DOWNSTREAM PROCESSING<br><br>Separation + Purification
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 03. THE YIELD (AGRI) -->
+        <section id="agri" class="tab-content hidden">
+            <div class="mb-8 text-center">
+                <h2 class="text-3xl text-lab-green font-comic font-bold mb-2">Agricultural Yield</h2>
+                <p class="text-lab-text text-sm font-bold">Nutrition and Pest Resistance.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Golden Rice & Flavr Savr -->
+                <div class="flex flex-col gap-6">
+                    <div class="data-card accent-green">
+                        <div class="text-lg font-bold text-lab-green mb-2 border-b-2 border-lab-border pb-1">GOLDEN RICE</div>
+                        <div class="micro-block text-xs leading-relaxed">
+                            <em>Oryza sativa</em><br>
+                            <strong>Goal:</strong> Enhanced Nutrition.<br>
+                            <strong>Gene:</strong> Carotene gene &rarr; Pro-Vit-A (&beta;-Carotene).<br>
+                            <strong>Vector:</strong> Ti-plasmid.
+                        </div>
+                    </div>
+                    <div class="data-card accent-green">
+                        <div class="text-lg font-bold text-lab-green mb-2 border-b-2 border-lab-border pb-1">FLAVR SAVR TOMATO</div>
+                        <div class="micro-block text-xs leading-relaxed">
+                            <strong>Goal:</strong> Reduced post-harvest losses.<br>
+                            <strong>Mech:</strong> RNAi silences the <strong>Polygalacturonase</strong> gene.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bt Toxin -->
+                <div class="data-card accent-red lg:col-span-2">
+                    <div class="text-lg font-bold text-lab-accent mb-2 border-b-2 border-lab-border pb-1">BT TOXIN (Bt Cotton)</div>
+                    <div class="micro-block text-sm">
+                        <strong>Source:</strong> <em>Bacillus thuringiensis</em> (<em>cry</em> gene produces inactive protoxin/endotoxin).
+                    </div>
+                    <div class="micro-block bg-[#ffe6e6] text-center font-bold text-xs leading-relaxed border-lab-accent">
+                        Inactive Protoxin &rarr; Solubilizes in <span class="text-red-700 text-sm uppercase">Alkaline Medium</span> of Insect Midgut &rarr; Active Toxin binds to midgut wall &rarr; Creates Pores &rarr; Swelling &amp; Lysis &rarr; Insect Death.
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div class="micro-block mb-0 leading-relaxed">
+                            <strong>Targets:</strong><br>
+                            - Lepidopterans (tobacco budworm, army worm)<br>
+                            - Coleopterans (beetles)<br>
+                            - Dipterans (flies, mosquitoes)
+                        </div>
+                        <div class="micro-block mb-0 flex flex-col justify-center leading-relaxed">
+                            <strong>Gene Choice (NCERT):</strong><br>
+                            Cry I Ac + Cry II Ab = Cotton bollworm.<br>
+                            Cry I Ab = Corn borer.
+                        </div>
+                    </div>
+                </div>
+  <!-- RNAi -->
+                <div class="data-card accent-green lg:col-span-3">
+                    <div class="text-lg font-bold text-lab-green mb-2 border-b-2 border-lab-border pb-1 text-center">RNA INTERFERENCE (RNAi)</div>
+                    <div class="flex flex-col md:flex-row gap-4 text-xs">
+                        <div class="micro-block flex-1 leading-relaxed">
+                            <strong>Target:</strong> Nematode <em>Meloidogyne incognita</em> in Tobacco plant roots.
+                        </div>
+                        <div class="micro-block flex-1 leading-relaxed">
+                            <strong>Mechanism:</strong> Cellular defense in all eukaryotes. Silences specific mRNA via complementary <strong>dsRNA</strong>. Prevents translation.
+                        </div>
+                        <div class="micro-block flex-1 leading-relaxed">
+                            <strong>Source of RNA:</strong> Virus or Transposons.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 04. THE CURE (MED) -->
+        <section id="med" class="tab-content hidden">
+            <div class="mb-8 text-center">
+                <h2 class="text-3xl text-lab-blue font-comic font-bold mb-2">Medical Cures & Diag</h2>
+                <p class="text-lab-text text-sm font-bold">30 Recombinant Therapeutics worldwide. 12 in India.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Humulin -->
+                <div class="data-card" style="border-left-color: #00008b;">
+                    <div class="text-lg font-bold text-lab-blue mb-2 border-b-2 border-lab-border pb-1">HUMULIN (Genetically Engineered Insulin)</div>
+                    <div class="micro-block text-[11px] leading-relaxed">
+                        <strong>1983 - Eli Lilly:</strong> Previously extracted from Cattle/Pig (caused allergy). Host: <em>E. coli</em>. Vector: pBR322.
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs text-center font-bold">
+                        <div class="micro-block bg-white mb-0 border-gray-300">
+                            <span class="block text-lab-accent mb-1 underline">Pro-insulin (Inactive)</span>
+                            Synthesized by &beta;-cells of Pancreas.<br>
+                            A(21) + B(30) + C(33) = 84 Amino Acids.
+                        </div>
+                        <div class="micro-block bg-[#e6f2ff] mb-0 border-[#00008b]">
+                            <span class="block text-lab-blue mb-1 underline">Mature Insulin (Active)</span>
+                            C-peptide is removed.<br>
+                            A(21) + B(30) linked by <strong>Disulphide bridge</strong> = 51 Amino Acids.
+                        </div>
+                    </div>
+                    <div class="text-xs text-center mt-3 font-bold bg-white p-2 border border-dashed border-lab-border">Chains A & B produced separately, extracted, & combined.</div>
+                </div>
+
+                <!-- Gene Therapy -->
+                <div class="data-card" style="border-left-color: #00008b;">
+                    <div class="text-lg font-bold text-lab-blue mb-2 border-b-2 border-lab-border pb-1">GENE THERAPY (ADA Deficiency)</div>
+                    <div class="micro-block text-[11px] leading-relaxed">
+                        <strong>1990:</strong> 1st Clinical gene therapy on 4-year-old girl.<br>
+                        <strong>Pathology:</strong> Adenosine Deaminase (ADA) deficiency causes SCID. ADA stimulates Humoral & Cell Mediated Immunity.
+                    </div>
+                    <div class="micro-block text-xs bg-white leading-relaxed">
+                        <strong>Therapy Protocol:</strong><br>
+                        1. Isolate defective Lymphocyte.<br>
+                        2. Insert Functional ADA cDNA + Retrovirus (Vector).<br>
+                        3. Return to patient.
+                    </div>
+                    <div class="text-[11px] text-center mt-2 font-bold text-lab-accent p-1 bg-[#ffe6e6] border border-red-200">
+                        Not permanent (lymphocytes die). Permanent ONLY if introduced at early Embryonic stage.
+                    </div>
+                </div>
+
+                <!-- Molecular Diagnosis -->
+                <div class="data-card lg:col-span-2" style="border-left-color: #00008b;">
+                    <div class="text-lg font-bold text-lab-blue mb-2 border-b-2 border-lab-border pb-1 text-center">MOLECULAR DIAGNOSIS (Early Detection)</div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                        <div class="micro-block mb-0 text-center flex flex-col justify-center">
+                            <strong class="text-lab-accent block text-sm mb-1">PCR</strong>
+                            Amplifies trace DNA for early detection.
+                        </div>
+                        <div class="micro-block mb-0 text-center flex flex-col justify-center">
+                            <strong class="text-lab-accent block text-sm mb-1">ELISA</strong>
+                            Based on Antigen-Antibody interaction. Detects pathogen antigen or antibody. Enzyme = <strong>Peroxidase</strong>.
+                        </div>
+                        <div class="micro-block mb-0 text-center flex flex-col justify-center">
+                            <strong class="text-lab-accent block text-sm mb-1">Autoradiography</strong>
+                            ssDNA/ssRNA Probe tagged with Radioactive <strong>P<sup>32</sup></strong>. Hybridizes to mutated gene on photographic film.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 05. LAB DATA -->
+   <section id="data" class="tab-content hidden">
+            <div class="mb-8 text-center">
+                <h2 class="text-3xl text-purple-800 font-comic font-bold mb-2">Transgenics & Ethics</h2>
+                <p class="text-lab-text text-sm font-bold">Animals, Ethics, and Biopiracy.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Transgenic Animals -->
+                <div class="data-card" style="border-left-color: #6b21a8;">
+                    <div class="text-lg font-bold text-purple-800 mb-2 border-b-2 border-lab-border pb-1">TRANSGENIC ANIMALS</div>
+                    <div class="micro-block text-center font-bold text-sm bg-white">
+                        Rat, Rabbit, Pig, Sheep, Cow, Fish.<br>
+                        <span class="text-lab-accent text-lg">95% of all existing are Mice.</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div class="micro-block mb-0"><strong>1. Physiology:</strong> Normal development.</div>
+                        <div class="micro-block mb-0"><strong>2. Diseases:</strong> Cancer, Cystic Fibrosis, Rheumatoid arthritis, Alzheimer's.</div>
+                        <div class="micro-block mb-0"><strong>4. Vaccine Safety:</strong> Polio vaccine tested on mice.</div>
+                        <div class="micro-block mb-0"><strong>5. Chemical Safety Testing.</strong></div>
+                        <div class="micro-block mb-0 sm:col-span-2 bg-[#f3e8ff] border-purple-300">
+                            <strong>3. Biological Products:</strong><br>
+                            - &alpha;-1 antitrypsin (for Emphysema).<br>
+                            - Products for Phenylketonuria (PKU) & Cystic Fibrosis.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rosie & Ethics -->
+                <div class="flex flex-col gap-6">
+                    <div class="data-card" style="border-left-color: #6b21a8;">
+                        <div class="text-lg font-bold text-purple-800 mb-2 border-b-2 border-lab-border pb-1">ROSIE (1997)</div>
+                        <div class="micro-block text-sm bg-white">
+                            First Transgenic Cow. Produced protein-enriched milk (2.4 gm/L) containing Human <strong>&alpha;-lactalbumin</strong>.
+                        </div>
+                    </div>
+
+                    <div class="data-card accent-red">
+                        <div class="text-lg font-bold text-lab-accent mb-2 border-b-2 border-lab-border pb-1">ETHICS & BIOPIRACY</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] leading-relaxed">
+                            <div class="micro-block mb-0"><strong>GEAC:</strong> Genetic Engineering Approval Committee.</div>
+                            <div class="micro-block mb-0"><strong>Rice Diversity:</strong> 200,000 varieties in India. Basmati = 27 varieties.</div>
+                            <div class="micro-block mb-0 sm:col-span-2"><strong>Biopiracy:</strong> 1997, American company obtained patent rights on Indian Basmati.</div>
+                            <div class="micro-block mb-0 sm:col-span-2"><strong>Legislation:</strong> Second amendment of the Indian Patents Bill.</div>
+                            <div class="micro-block mb-0 sm:col-span-2 text-center bg-white border-lab-accent text-sm font-bold shadow-sm">
+                                <strong>Brazzein:</strong> Low Calorie Sweetener Protein<br>(2000 times as sweet as sugar).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-[#fff8dc] border-t-2 border-lab-border py-6 mt-auto shadow-inner text-center">
+        <span class="font-typewriter text-xs font-bold text-lab-text tracking-widest uppercase">
+            NEET 2026 // MASTER PROTOCOL // DATA YIELD: 100% PURE
+        </span>
+    </footer>
+
+    <!-- LOGIC SCRIPT -->
+    <script>
+        // --- 1. Tab Navigation ---
+        const tabs = ['origin', 'synthesis', 'agri', 'med', 'data'];
+        let chartsRendered = false;
+
+        function switchTab(selectedTab) {
+            tabs.forEach(tab => {
+                document.getElementById(tab).style.display = 'none';
+                document.getElementById('tab-' + tab).classList.remove('active');
+            });
+            
+            const activeSection = document.getElementById(selectedTab);
+            activeSection.style.display = 'block';
+            activeSection.style.opacity = '0';
+            
+            let op = 0;
+            const timer = setInterval(() => {
+                if (op >= 1){ clearInterval(timer); }
+                activeSection.style.opacity = op;
+                op += 0.15;
+            }, 20);
+
+            document.getElementById('tab-' + selectedTab).classList.add('active');
+
+            if (selectedTab === 'synthesis' && !chartsRendered) {
+                renderCharts();
+                chartsRendered = true;
+            }
+        }
+
+        // Initialize display
+        tabs.forEach(t => document.getElementById(t).style.display = 'none');
+        document.getElementById('origin').style.display = 'block';
+
+        // --- 2. Chart.js (The Synthesis) ---
+        function renderCharts() {
+            Chart.defaults.color = '#2b2612';
+            Chart.defaults.font.family = '"Courier New", Courier, monospace';
+            Chart.defaults.font.weight = 'bold';
+            Chart.defaults.borderColor = '#d4af37';
+
+            // PCR Exponential Chart
+            const ctxPcr = document.getElementById('pcrChart').getContext('2d');
+            const pcrLabels = [0, 5, 10, 15, 20, 25, 30];
+            const pcrData = pcrLabels.map(cycle => Math.pow(2, cycle));
+
+            new Chart(ctxPcr, {
+                type: 'line',
+                data: {
+                    labels: pcrLabels,
+                    datasets: [{
+                        label: 'DNA Copies',
+                        data: pcrData,
+                        borderColor: '#b22222',
+                        backgroundColor: 'rgba(178, 34, 34, 0.1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#b22222',
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            type: 'logarithmic',
+                            title: { display: true, text: 'Copies (Log)' }
+                        },
+                        x: { title: { display: true, text: 'Cycles (Max 30)' } }
+                    }
+                }
+            });
+
+            // Gel Electrophoresis Scatter Chart
+            const ctxGel = document.getElementById('gelChart').getContext('2d');
+            const gelData = [
+                {x: 10, y: 10000}, {x: 20, y: 5000}, {x: 35, y: 3000}, 
+                {x: 55, y: 1500}, {x: 75, y: 800}, {x: 90, y: 300}
+            ];
+
+            new Chart(ctxGel, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Fragment',
+                        data: gelData,
+                        backgroundColor: '#d4af37',
+                        borderColor: '#2b2612',
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { 
+                            title: { display: true, text: 'Size (bp)' },
+                            type: 'logarithmic'
+                        },
+                        x: { 
+                            title: { display: true, text: 'Distance to Anode (+)' },
+                            min: 0, max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 3. Plasmid Simulator (Fixed BamHI & Double Cut) ---
+        function simCut(site) {
+            // Reset all buttons and markers
+            document.querySelectorAll('#btn-none, #btn-pstI, #btn-bamHI, #btn-both').forEach(b => {
+                b.classList.remove('bg-lab-border', 'text-white', 'shadow-inner');
+                b.classList.add('bg-white');
+            });
+            
+            document.getElementById('marker-pstI').style.opacity = '0';
+            document.getElementById('marker-bamHI').style.opacity = '0';
+            
+            const output = document.getElementById('sim-output');
+
+            if (site === 'none') {
+                const btn = document.getElementById('btn-none');
+                btn.classList.remove('bg-white'); btn.classList.add('bg-lab-border', 'text-white');
+                
+                output.innerHTML = "CONTROL BATCH: Non-Recombinant.<br>Survives both Ampicillin & Tetracycline.";
+                output.className = "bg-white border-2 border-lab-border p-3 text-xs font-bold text-center h-20 flex items-center justify-center transition-colors shadow-inner";
+            } 
+            else if (site === 'PstI') {
+                const btn = document.getElementById('btn-pstI');
+                btn.classList.remove('bg-white'); btn.classList.add('bg-lab-border', 'text-white');
+                document.getElementById('marker-pstI').style.opacity = '1';
+                
+                output.innerHTML = "RECOMBINANT (PstI): AmpR disrupted.<br>Fails on Ampicillin. Survives Tetracycline.";
+                output.className = "bg-[#e6f2ff] border-2 border-blue-500 p-3 text-xs font-bold text-center h-20 flex items-center justify-center transition-colors shadow-inner";
+            }
+            else if (site === 'BamHI') {
+                const btn = document.getElementById('btn-bamHI');
+                btn.classList.remove('bg-white'); btn.classList.add('bg-lab-border', 'text-white');
+                document.getElementById('marker-bamHI').style.opacity = '1';
+                
+                output.innerHTML = "RECOMBINANT (BamHI): TetR disrupted.<br>Survives Ampicillin. Fails on Tetracycline.";
+                output.className = "bg-[#fffacd] border-2 border-yellow-500 p-3 text-xs font-bold text-center h-20 flex items-center justify-center transition-colors shadow-inner";
+            }
+            else if (site === 'both') {
+                const btn = document.getElementById('btn-both');
+                btn.classList.remove('bg-white'); btn.classList.add('bg-lab-border', 'text-white');
+                document.getElementById('marker-pstI').style.opacity = '1';
+                document.getElementById('marker-bamHI').style.opacity = '1';
+                
+                output.innerHTML = "RECOMBINANT (Double Cut): Both markers disrupted.<br>Fails on BOTH Ampicillin & Tetracycline.";
+                output.className = "bg-[#ffe6e6] border-2 border-red-500 p-3 text-[11px] font-bold text-center h-20 flex items-center justify-center transition-colors shadow-inner";
+            }
+        }
+
+        // --- 4. Cinematic Easter Egg ("Say My Name") ---
+        function openSayMyName() {
+            const modal = document.getElementById('heisenberg-modal');
+            const inputGroup = document.getElementById('modal-input-group');
+            const resultDiv = document.getElementById('heisenberg-result');
+            const errorDiv = document.getElementById('heisenberg-error');
+            const input = document.getElementById('heisenberg-input');
+            
+            input.value = '';
+            inputGroup.style.opacity = '1';
+            inputGroup.style.display = 'block';
+            
+            resultDiv.classList.remove('show');
+            setTimeout(() => resultDiv.classList.add('hidden'), 500);
+            
+            errorDiv.classList.add('hidden');
+            errorDiv.style.opacity = '0';
+            
+            modal.classList.remove('hidden');
+            modal.style.opacity = '0';
+            modal.classList.add('flex');
+            
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                input.focus();
+            }, 50);
+        }
+
+        function closeSayMyName() {
+            const modal = document.getElementById('heisenberg-modal');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 1000);
+        }
+
+        function resetSayMyName() {
+            const errorDiv = document.getElementById('heisenberg-error');
+            const inputGroup = document.getElementById('modal-input-group');
+            const input = document.getElementById('heisenberg-input');
+            
+            errorDiv.style.opacity = '0';
+            setTimeout(() => errorDiv.classList.add('hidden'), 1000);
+            
+            inputGroup.style.display = 'block';
+            setTimeout(() => {
+                inputGroup.style.opacity = '1';
+                input.value = '';
+                input.focus();
+            }, 1050);
+        }
+
+        function checkName() {
+            const rawInput = document.getElementById('heisenberg-input').value;
+            if(!rawInput.trim()) return;
+
+            const normalized = rawInput.toLowerCase().trim().replace(/\s+/g, ' ');
+            
+            const validNames = [
+                "abhi", "abhinav", 
+                "abhi yaduvanshi", "abhinav yaduvanshi", 
+                "abhi yadav", "abhinav yadav", 
+                "abhi kumar", "abhinav kumar", "heisenberg"
+            ];
+
+            const inputGroup = document.getElementById('modal-input-group');
+            const resultDiv = document.getElementById('heisenberg-result');
+            const errorDiv = document.getElementById('heisenberg-error');
+
+            inputGroup.style.opacity = '0';
+
+            setTimeout(() => {
+                inputGroup.style.display = 'none';
+
+                if (validNames.includes(normalized)) {
+                    // Correct Name Reveal
+                    resultDiv.classList.remove('hidden');
+                    void resultDiv.offsetWidth; // trigger reflow
+                    resultDiv.classList.add('show');
+                } else {
+                    // Wrong Name - Threatening Reveal
+                    errorDiv.classList.remove('hidden');
+                    void errorDiv.offsetWidth; // trigger reflow
+                    errorDiv.style.opacity = '1';
+                }
+            }, 1000);
+        }
+
+        document.getElementById('heisenberg-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkName();
+        });
+
+    </script>
+</body>
+</html>
